@@ -6,9 +6,10 @@ from models import Workout, connect_db, db, Trainer, Client
 from auth import AuthError, requires_auth
 from sqlalchemy import orm, exc
 from psycopg2 import errors
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 with app.app_context():
     connect_db(app)
