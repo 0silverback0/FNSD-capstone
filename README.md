@@ -41,7 +41,12 @@ Expansion of the database will eventually allow for images, video links, more de
   ```
     {
     "success": true,
-    "trainers": []
+    "trainers": [
+        "coach Mike",
+        "coach John",
+        "coach Nancy",
+        "Ellen"
+    ]
     }
   ```
 
@@ -49,7 +54,9 @@ Expansion of the database will eventually allow for images, video links, more de
   ```
     {
     "success": true,
-    "trainer": []
+    "trainer": [
+        "coach Annie"
+    ]
     }
   ```
 
@@ -57,36 +64,56 @@ Expansion of the database will eventually allow for images, video links, more de
   ```
     {
     "success": true,
-    "clients": []
+    "clients": [
+        "Jess",
+        "Megan",
+        "Julia",
+        "Joe"
+    ]
     }
   ```
 - `post:clients` returns new client
   ```
     {
     "success": true,
-    "clients": []
+    "client": [
+        "Darron G"
+    ]
     }
   ```
 -  `post:workouts` returns an array of exercises
   ```
     {
     "success": true,
-    "workout": []
+    "workout": [
+        "squats",
+        "deadlifts",
+        "pull-ups"
+    ]
     }
   ```
 -  `patch:workouts` returns edited workout array
   ```
     {
     "success": true,
-    "workout": []
+    "workout": [
+        "squats",
+        "romanian deadlifts",
+        "pull-ups"
+    ]
     }
+
   ```
+
 - `delete:workouts` returns message of deleted workout
+  
   ```
+
     {
     "success": true,
-    "trainers": []
+    "workout": "workout id: 3 deleted" 
     }
+
   ```
 ## Testing
 - In the root folder there is a test_capstone.py file with test for the endpoints.

@@ -2,10 +2,9 @@ from sqlite3 import IntegrityError
 from flask import Flask, render_template, jsonify, request, json, abort
 
 from config import DATABASE_URI
-from models import Workout, connect_db, db, Trainer, Client
+from models import Workout, connect_db, Trainer, Client
 from auth import AuthError, requires_auth
 from sqlalchemy import orm, exc
-from psycopg2 import errors
 import os
 
 app = Flask(__name__)
@@ -14,7 +13,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 with app.app_context():
     connect_db(app)
 
-#get trainers
+# get trainers
+
+
 @app.route('/')
 @requires_auth('get:trainers')
 def get_trainers(payload):
@@ -30,6 +31,8 @@ def get_trainers(payload):
         abort(404)
 
 # create new trainer
+
+
 @app.route('/', methods=['POST'])
 @requires_auth('post:trainers')
 def create_trainer(payload):
@@ -38,8 +41,7 @@ def create_trainer(payload):
     try:
         if 'post:trainers' in payload['permissions']:
             new_trainer = Trainer(name=name['name'])
-            db.session.add(new_trainer)
-            db.session.commit()
+            new_trainer.insert()
 
             return jsonify({
                 'trainers': new_trainer.name,
@@ -48,7 +50,9 @@ def create_trainer(payload):
     except exc.IntegrityError:
         abort(400)
 
-#create new client
+# create new client
+
+
 @app.route('/clients', methods=['POST'])
 @requires_auth('get:clients')
 def create_client(payload):
@@ -56,8 +60,7 @@ def create_client(payload):
     try:
         if 'get:clients' in payload['permissions']:
             client = Client(name=name)
-            db.session.add(client)
-            db.session.commit()
+            client.insert()
 
             return jsonify({
                 'client': client.name,
@@ -66,10 +69,8 @@ def create_client(payload):
     except exc.IntegrityError:
         print(exc.IntegrityError)
         abort(404)
-        
-    
 
-#get all clients
+
 @app.route('/clients')
 @requires_auth('get:clients')
 def get_clients(payload):
@@ -84,29 +85,29 @@ def get_clients(payload):
             'succes': False
         })
 
+
 @app.route('/workouts', methods=['POST'])
 @requires_auth('post:workouts')
 def create_workouts(payload):
-    
+
     try:
         if 'post:workouts' in payload['permissions']:
             ex1 = request.form.get('ex1')
             ex2 = request.form.get('ex2')
             ex3 = request.form.get('ex3')
             exercises = [ex1, ex2, ex3]
-            
+
             workout = Workout(exercises=exercises)
-            db.session.add(workout)
-            db.session.commit()
-        
+            workout.insert()
+
             return jsonify({
                 "trainer_id": workout.trainer_id,
-                "workout":  workout.exercises   
+                "workout": workout.exercises
             })
     except IntegrityError:
         abort(404)
 
-#double check this route
+
 @app.route('/workouts/edit/<int:id>', methods=['PATCH'])
 @requires_auth('patch:workout')
 def edit_workout(payload, id):
@@ -115,12 +116,13 @@ def edit_workout(payload, id):
         ex1 = request.form.get('ex1') or workout.exercises[0]
         ex2 = request.form.get('ex2') or workout.exercises[1]
         ex3 = request.form.get('ex3') or workout.exercises[2]
-        workout.exercises = [ex1,ex2,ex3]
-        db.session.commit()
+        workout.exercises = [ex1, ex2, ex3]
+        workout.update()
         return jsonify({
             'success': True,
             'exercises': workout.exercises
         })
+
 
 @app.route('/workouts/delete/<int:id>', methods=['DELETE'])
 @requires_auth('delete:workout')
@@ -128,8 +130,7 @@ def delete_workout(payload, id):
     workout = Workout.query.get(id)
     try:
         if 'delete:workout' in payload['permissions']:
-            db.session.delete(workout)
-            db.session.commit()
+            workout.delete()
 
             return jsonify({
                 'success': True,
@@ -139,18 +140,21 @@ def delete_workout(payload, id):
     except orm.exc.UnmappedInstanceError:
         abort(404)
 
+
 """
 error handlers
 """
 
+
 @app.errorhandler(AuthError)
 def auth_error(error):
-    
+
     return jsonify({
         "success": False,
         "error": error.status_code,
         "message": error.error.get('description')
     }), error.status_code
+
 
 @app.errorhandler(400)
 def bad_request(e):
@@ -160,6 +164,7 @@ def bad_request(e):
         'description': e.description
     })
 
+
 @app.errorhandler(403)
 def bad_request(e):
     return jsonify({
@@ -167,6 +172,7 @@ def bad_request(e):
         'error': e.code,
         'description': 'Cannot delete. Does Not Exist'
     })
+
 
 @app.errorhandler(500)
 def others(e):
