@@ -6,7 +6,7 @@ from urllib.request import urlopen
 from config import AUT0_DOMAIN
 import os
 
-AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN', 'dev-rk1g1wysbyoswvka.us.auth0.com')
+AUTH0_DOMAIN = os.getenv(AUTH0_DOMAIN, 'dev-rk1g1wysbyoswvka.us.auth0.com')
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'capstone'
 
